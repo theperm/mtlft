@@ -1,0 +1,11 @@
+Testsuite: uk.co.real_logic.DynamicConcurrentArrayTest
+Tests run: 8, Failures: 0, Errors: 0, Time elapsed: 3.508 sec
+
+Testcase: shouldNotRemoveItem took 0.002 sec
+Testcase: shouldHandleConcurrentMutation took 3.493 sec
+Testcase: shouldIterateOverArray took 0 sec
+Testcase: shouldRemoveItemFromArrayLeavingItEmpty took 0 sec
+Testcase: shouldRemoveItem took 0 sec
+Testcase: shouldThrowExceptionOnRemovingNull took 0 sec
+Testcase: shouldThrowExceptionOnAddingNull took 0 sec
+Testcase: shouldAddItemToArray took 0 sec

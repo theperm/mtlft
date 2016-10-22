@@ -74,6 +74,13 @@ public class MemoryMappedPipeWriter
     {
         // TODO
 
-        return 0;
+        int start = (int)atomicBuffer.getLongVolatile(writeCounterIndex);
+        int writeCount = Math.min(capacity-start, count);
+
+        atomicBuffer.putBytes(start, src, offset, writeCount);
+
+        atomicBuffer.putOrderedLong(writeCounterIndex, start + writeCount);
+
+        return count - writeCount;
     }
 }

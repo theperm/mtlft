@@ -15,7 +15,7 @@ public class FalseSharing
     {
         for (int i = 0; i < longs.length; i++)
         {
-            // longs[i] = new PaddedAtomicLong();
+            //longs[i] = new PaddedAtomicLong();
             longs[i] = new AtomicLong(); // TODO change
         }
     }

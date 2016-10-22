@@ -9,7 +9,7 @@ public class ManyToOneQueuePerfTest
 {
     private static final Integer TEST_ELEMENT = Integer.valueOf(777);
     private static final int REPETITIONS = 20 * 1000 * 1000;
-    private static final int NUM_PRODUCERS = 3;
+    private static final int NUM_PRODUCERS = 1;
     private static final int QUEUE_CAPACITY = 64 * 1024;
 
     public static void main(final String[] args)

@@ -58,7 +58,31 @@ public class ManyToManyConcurrentArrayQueue<E> implements Queue<E>
 
     public boolean offer(final E e)
     {
-        // TODO
+        if (null == e)
+        {
+            throw new NullPointerException("Null is not a valid element");
+        }
+
+        long currentTail;
+        final long currentHead = headCache.get();
+        final long bufferLimit = currentHead + capacity;
+        do
+        {
+            currentTail = tail.get();
+            if (currentTail >= bufferLimit)
+                headCache.setOrdered(head.get());
+            if (currentTail - headCache.get() == capacity)
+            {
+                return false;
+            }
+        }
+        while (!tail.compareAndSet(currentTail, currentTail + 1));
+
+        final long elementOffset = calculateOffset((int)currentTail & mask);
+        while (!unsafe.compareAndSwapObject(buffer, elementOffset, null, e))
+        {
+            // busy spin
+        }
 
         return true;
     }
@@ -66,8 +90,32 @@ public class ManyToManyConcurrentArrayQueue<E> implements Queue<E>
     @SuppressWarnings("unchecked")
     public E poll()
     {
-        // TODO
-        return null;
+        long currentHead;
+        final long currentTail = tailCache.get();
+        do
+        {
+            currentHead = head.get();
+            if (currentHead >= currentTail)
+                tailCache.setOrdered(tail.get());
+
+            if (tailCache.get() == currentHead)
+            {
+                return null;
+            }
+        }
+        while (!head.compareAndSet(currentHead, currentHead + 1));
+
+        final long elementOffset = calculateOffset((int)currentHead & mask);
+        Object e;
+        do
+        {
+            e = unsafe.getObjectVolatile(buffer, elementOffset);
+        }
+        while (null == e);
+
+        unsafe.putOrderedObject(buffer, elementOffset, null);
+
+        return (E)e;
     }
 
     public E remove()

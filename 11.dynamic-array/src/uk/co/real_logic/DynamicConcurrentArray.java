@@ -15,15 +15,46 @@ public class DynamicConcurrentArray<T> implements Collection<T>
     public boolean add(final T item)
     {
         // TODO
+        if (item == null)
+            throw new NullPointerException();
 
-        return false;
+        Object[] dest, src;
+        do
+        {
+            src = arrayRef.get();
+            dest = new Object[src.length+1];
+
+            System.arraycopy(src, 0,dest, 0, src.length);
+
+            dest[src.length] = item;
+        }
+        while (!arrayRef.compareAndSet(src, dest));
+
+        return true;
     }
 
     public boolean remove(final Object item)
     {
         // TODO
+        if (item == null)
+            throw new NullPointerException();
 
-        return false;
+        Object[] src, dest;
+
+        do
+        {
+            src = arrayRef.get();
+            int index = find(src,item);
+            if (index == -1)
+                return false;
+            dest = new Object[src.length-1];
+
+            System.arraycopy(src, 0, dest, 0, index);
+            System.arraycopy(src, index+1,dest, index, dest.length - index);
+        }
+        while (!arrayRef.compareAndSet(src, dest));
+
+        return true;
     }
 
     public int size()

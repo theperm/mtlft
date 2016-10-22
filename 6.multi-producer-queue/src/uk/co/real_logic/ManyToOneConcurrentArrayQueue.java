@@ -56,6 +56,23 @@ public class ManyToOneConcurrentArrayQueue<E> implements Queue<E>
     {
         // TODO
 
+        long ctail;
+        do {
+
+        final long climit = this.head.get() + this.capacity;
+
+        ctail = this.tail.get();
+
+        if (ctail >= climit)
+            return false;
+        }
+
+        while (!tail.compareAndSet(ctail, ctail + 1));
+
+        final int index = (int)ctail & mask;
+
+        unsafe.putOrderedObject(buffer, calculateOffset(index), e);
+
         return true;
     }
 
@@ -63,7 +80,25 @@ public class ManyToOneConcurrentArrayQueue<E> implements Queue<E>
     public E poll()
     {
         // TODO
-        return null;
+
+        final long cHead = head.get();
+        if (cHead == tail.get())
+            return null;
+
+        final long index = calculateOffset((int)cHead & mask);
+
+        E item;
+        do {
+            item = (E)unsafe.getObjectVolatile(buffer, index);
+
+
+        }
+        while(null == item);
+
+        unsafe.putOrderedObject(buffer, index, null);
+        head.setOrdered(cHead + 1);
+
+        return item;
     }
 
     public E remove()

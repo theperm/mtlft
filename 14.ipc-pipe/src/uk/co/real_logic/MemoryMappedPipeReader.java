@@ -74,6 +74,13 @@ public class MemoryMappedPipeReader
     {
         // TODO
 
-        return 0;
+        int start = (int)atomicBuffer.getLongVolatile(readCounterIndex);
+        int readCount = Math.min(capacity-start, count);
+
+        atomicBuffer.putBytes(start, src, offset, writeCount);
+
+        atomicBuffer.putOrderedLong(readCounterIndex, start + readCount);
+
+        return count - readCount;
     }
 }

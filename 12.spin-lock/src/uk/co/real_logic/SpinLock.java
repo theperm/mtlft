@@ -28,17 +28,34 @@ public class SpinLock implements Lock
     public boolean tryLock()
     {
         // TODO
-        return false;
+        if (getCurrentHolderThreadId() == Thread.currentThread().getId())
+            throw new IllegalStateException();
+
+        if (getCurrentHolderThreadId() != NO_HOLDER)
+            return false;
+
+        return currentHolder.compareAndSet(getCurrentHolderThreadId(),
+                Thread.currentThread().getId());
     }
 
     public void lock()
     {
+
         // TODO
+        while(!tryLock())
+        {
+            Thread.yield();
+        }
     }
 
     public void unlock()
     {
         // TODO
+        if (getCurrentHolderThreadId() != Thread.currentThread().getId())
+            throw new IllegalStateException();
+
+        currentHolder.compareAndSet(getCurrentHolderThreadId(),
+                NO_HOLDER);
     }
 
     public long getCurrentHolderThreadId()

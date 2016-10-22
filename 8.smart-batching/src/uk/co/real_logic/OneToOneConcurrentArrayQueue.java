@@ -62,8 +62,24 @@ public class OneToOneConcurrentArrayQueue<E> implements Queue<E>, Drainable<E>
 
     public int drain(final ElementHandler<E> elementHandler)
     {
+
         // TODO
-        return 0;
+        final long head = this.head.get();
+        final long tail = this.tail.get();
+        long done = 0;
+        try
+        {
+            for( done = head; done < tail; done++)
+            {
+                elementHandler.onElement(removeSequence(done));
+            }
+        }
+        finally
+        {
+            this.head.setOrdered(done);
+        }
+
+        return (int) (done - head);
     }
 
     public E remove()

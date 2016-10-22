@@ -37,18 +37,48 @@ public class OneToOneConcurrentArrayQueue<E> implements Queue<E>
 
     public boolean offer(final E e)
     {
-        // TODO
+        final long tail = this.tail.get();
+
+        if (tail >= headCache.get() + capacity)
+            headCache.setOrdered(head.get());
+
+        if (tail - headCache.get() == capacity)
+        {
+            return false;
+        }
+
+        buffer[(int)tail & mask] = e;
+        this.tail.setOrdered(tail + 1);
 
         return true;
     }
 
     public E poll()
     {
-        // TODO
+        final long head = this.head.get();
 
-        return null;
+        if (head >= tailCache.get())
+            tailCache.setOrdered(tail.get());
+
+        if (tailCache.get() == head)
+        {
+            return null;
+        }
+
+        E e = removeSequence(head);
+        this.head.setOrdered(head + 1);
+
+        return e;
     }
 
+    private E removeSequence(final long sequence)
+    {
+        final int index = (int)sequence & mask;
+        final E e = buffer[index];
+        buffer[index] = null;
+
+        return e;
+    }
     public E remove()
     {
         final E e = poll();

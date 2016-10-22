@@ -73,6 +73,7 @@ public class ManyToOneConcurrentArrayQueue<E> implements Queue<E>
         while (!tail.compareAndSet(currentTail, currentTail + 1));
 
         final int index = (int)currentTail & mask;
+        
         unsafe.putOrderedObject(buffer, calculateOffset(index), e);
 
         return true;

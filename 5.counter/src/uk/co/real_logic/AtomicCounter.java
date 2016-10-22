@@ -177,7 +177,14 @@ public class AtomicCounter extends RhsPadding
     public long getAndAdd(final long delta)
     {
         // TODO
-        return 0;
+        long val;
+        do
+        {
+            val = get();
+        }
+        while(!compareAndSet(val, val + delta ));
+
+        return val;
     }
 
     /**
@@ -189,7 +196,16 @@ public class AtomicCounter extends RhsPadding
     public long addAndGet(final long delta)
     {
         // TODO
-        return 0;
+        long val;
+        long result;
+        do
+        {
+            val = get();
+            result = val + delta;
+        }
+        while(!compareAndSet(val, result));
+
+        return result;
     }
 
     /**

@@ -15,6 +15,7 @@
  */
 package uk.co.real_logic;
 
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
@@ -117,6 +118,11 @@ public class ThreadPoolExecutor
     public void execute(final Runnable command)
     {
         // TODO
+        if (!running.get())
+            throw new RejectedExecutionException();
+
+        if (!queue.offer(command))
+            executeOverflow(command);
     }
 
     /**
@@ -286,6 +292,13 @@ public class ThreadPoolExecutor
         private void wakeWorkers(long backlogSize)
         {
             // TODO
+            for (int i = 0; i < Math.min(parkedWorkers.length(), backlogSize); i++)
+            {
+
+                Thread worker = parkedWorkers.getAndSet(i, null);
+                if (worker != null)
+                    LockSupport.unpark(worker);
+            }
         }
     }
 }
